@@ -1,0 +1,9 @@
+-Primeira instrução:
+	ordem =  *; /; +; -
+	valor de x = 15
+-Segunda instrução:
+	ordem = %; *; /; +; -
+	valor de x = 3
+-Terceira instrução:
+	ordem = *; /; +; *; *
+	valor de x = 324
