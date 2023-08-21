@@ -13,7 +13,6 @@ int main(){
 	printf("%d * 2**%d = ",x,n);
 
 	x = (x<<n);
-	n = (1<<n);
 
 	printf("%d\n",x);
 
