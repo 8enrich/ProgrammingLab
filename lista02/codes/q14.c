@@ -11,23 +11,11 @@ int main(){
 	printf("Digite o final da faixa: ");
 	scanf("%d", &end);
 
-	i = begin;
-	while(1){
-
+	i = (begin < end)? begin : end;
+	for(i;((i <= end) * (begin < end) + (i <= begin) * (end < begin));i++)
 		if(!(i % 3))
 			quantity++;
-
-		if(begin < end){
-			i++;
-			if(i > end)
-				break;
-		}
-		else{
-			i--;
-			if(i < begin)
-				break;
-		}
-	}
+	
 	printf("A quantidade de múltiplos de 3 na faixa escolhida é: %d\n",quantity);
 
 	return 0;

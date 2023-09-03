@@ -11,23 +11,11 @@ int main(){
 	printf("Digite o final da faixa: ");
 	scanf("%d", &end);
 
-	i = begin;
-	while(1){
-
+	i = (begin < end)? begin : end;
+	for(i;((i <= end) * (begin < end) + (i <= begin) * (begin > end));i++)
 		if(!(i % 2))
 			sum += i;
 
-		if(begin < end){
-			i++;
-			if(i > end)
-				break;
-		}
-		else{
-			i--;
-			if(i < end)
-				break;
-		}
-	}
 	printf("O somatório dos números pares na faixa escolhida é: %d\n",sum);
 	
 	return 0;
