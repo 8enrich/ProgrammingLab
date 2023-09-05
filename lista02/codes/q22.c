@@ -13,7 +13,7 @@ int main(){
 	while(num){
 		algarism = num % 10;
 		if(algarism == 7)
-			seven += 1;
+			seven++;
 		num /= 10;
 	}
 
