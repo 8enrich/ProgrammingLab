@@ -9,7 +9,7 @@ int main(){
 		printf("Digite um número inteiro(ou um par negativo para sair): ");
 		scanf("%d", &num);
 
-		if(!(bigger + lower)){
+		if(!(bigger) & !(lower)){
 			bigger = num;
 			lower = num;
 		}
