@@ -24,6 +24,7 @@ int main(){
 	while(begin > end){
 		printf("Digite o final do intervalo: ");
 		scanf("%d", &end);
+		if(begin > end) puts("O final do intervalo deve ser maior que o início!");
 	}
 
 	random_vector(vector, size, begin, end);
@@ -45,9 +46,9 @@ int main(){
 void random_vector(int *vector, int size, int begin, int end){
 	srand(time(NULL));
 	for(int i = 0; i < size; i++){
-		vector[i] = rand()%end;
-		if(vector[i] <= begin)
-			vector[i] = vector[i] % begin + begin;
+		vector[i] = rand()%(end + 1);
+		if(vector[i] < begin)
+			vector[i] = vector[i] % (end - begin) + begin;
 	}
 }
 

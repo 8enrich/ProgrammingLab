@@ -18,7 +18,7 @@ int main(){
 	printf("Digite outra string: ");
 	scanf(" %20[^\n]", str2);
 
-	sprintf(str3, "%s", str1);
+	strcpy(str3, str1);
 
 	printf("A string concatenada pela função strcat fica: %s\n", strcat(str1, str2));
 	printf("A string concatenada pela minha função fica: %s\n", strcat_h(str3, str2));
