@@ -6,7 +6,7 @@
 
 void create_vector(int*, int);
 void print_vector(int*, int);
-void lowest_element(int*, int);
+void lowest_biggest(int*, int);
 
 int main(int argc, char *argv[]){
   
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
   srand(time(NULL));
   create_vector(vector, size);
   print_vector(vector, size);
-  lowest_element(vector, size);
+  lowest_biggest(vector, size);
 
   free(vector);
 
@@ -41,11 +41,14 @@ void print_vector(int *vector, int size){
   puts("");
 }
 
-void lowest_element(int *vector, int size){
-  int *lowest = vector;
+void lowest_biggest(int *vector, int size){
+  int *low_big[] = {(vector), (vector)};
   for(int i = 0; i < size; i++){
-    if(*(vector + i) < *lowest)
-      lowest = (vector + i);
+    if(*(vector + i) < *(*low_big))
+      *low_big = (vector + i);
+    if(*(vector + i) > *(*(low_big + 1)))
+      *(low_big + 1) = (vector + i);
   }
-  printf("O menor endereço é: %p\n", lowest);
+  printf("O menor endereço é: %p\n", *low_big);
+  printf("O maior endereço é: %p\n", *(low_big + 1));
 }
