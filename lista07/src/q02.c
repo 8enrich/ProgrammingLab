@@ -4,11 +4,11 @@
 
 #define TOTAL 100
 
-int fread_lines(FILE*,int, char*);
+int fread_lines(FILE*,char*);
 void print_storage(FILE*,int);
 void add_register(FILE*,int);
 void change_register(FILE*,int);
-void change_data(char*,char*,int);
+void change_data(char*,int);
 
 int main(){
 
@@ -41,8 +41,9 @@ int main(){
   return 0;
 }
 
-int fread_lines(FILE *fp, int total, char *str){
+int fread_lines(FILE *fp, char *str){
   char ch;
+  fseek(fp, -1, SEEK_CUR);
   fscanf(fp, "%[^\n]s", str);
   fseek(fp, 1, SEEK_CUR);
   ch = getc(fp);
@@ -55,7 +56,7 @@ void print_storage(FILE *fp, int total){
   int n = 0;
   if(!(str = (char*) malloc(sizeof(char) * total))) exit(1);
   while(!n){
-    n = fread_lines(fp, total, str);
+    n = fread_lines(fp, str);
     printf("%s\n", str);
   }
   free(str);
@@ -66,9 +67,9 @@ void add_register(FILE *fp, int total){
   int n;
   if(!(str = (char*) malloc(sizeof(char) * total))) exit(2);
   for(int i = 0; i <= total; i++){
-    n = fread_lines(fp, total, str);
+    n = fread_lines(fp, str);
     if(n){
-      fprintf(fp, " #%d", i + 1);
+      fprintf(fp, "#%d", i + 1);
       printf("Digite o nome do produto: ");
       scanf("%s", str);
       fprintf(fp, " %s", str);
@@ -97,9 +98,8 @@ void add_register(FILE *fp, int total){
 void change_register(FILE *fp, int total){
   int num, a;
   char ch;
-  char *str, *backup;
+  char *str;
   if(!(str = (char*) malloc(sizeof(char) * total))) exit(1);
-  if(!(backup = (char*) malloc(sizeof(char) * total))) exit(2);
   while(1){
     printf("Qual registro voce quer alterar: ");
     scanf("%d", &num);
@@ -107,37 +107,33 @@ void change_register(FILE *fp, int total){
     else break;
   }
   char **matrix = NULL;
-  char *line = NULL;
   for(a = 0; a <= total; a++){
-    ch = fread_lines(fp, total, str);
-    if(a == num) change_data(str, backup, total);
+    ch = fread_lines(fp, str);
+    if(a == num) change_data(str, total);
     if(!(matrix = (char**) realloc(matrix, sizeof(char*) * a + 1))) exit(3);
-    if(!(line = (char*) calloc(sizeof(char), total))) exit(4);
-    strcpy(line,str);
-    matrix[a] = line;
+    if(!(*(matrix + a) = (char*) malloc(sizeof(char) * total))) exit(4);
+    strcpy(*(matrix + a), str);
     if(ch) break;
   }
   freopen(NULL,"w",fp);
   for(int i = 0; i <= a; i++){
-    strcpy(str, matrix[i]);
-    if(i) fprintf(fp, " %s\n", str);
-    else fprintf(fp, "%s\n", str);
+    fprintf(fp, "%s\n", matrix[i]);
+    free(*(matrix + i));
   }
   freopen(NULL, "a+", fp);
-  free(line);
   free(matrix);
   free(str);
-  free(backup);
   if(a < num) puts("Registro nao encontrado!");
 }
 
-void change_data(char *str, char *backup, int total){
-  char *slice = NULL;
+void change_data(char *str, int total){
+  char *slice = NULL, *backup = NULL;
   int j, num, spaces = 0;
   if(!(slice = (char*) malloc(sizeof(char) * total))) exit(1);
+  if(!(backup = (char*) calloc(sizeof(char), total))) exit(2);
   strcpy(backup, str);
+  for(int k = 0; k  < total; k++) *(str + k) = '\0';
   printf("%s\n", backup);
-  for(int i = 0; *(str + i) != '\0'; i++) *(str + i) = '\0';
   puts("1 - nome | 2 - qtd | 3 - custo");
   printf("O que deseja mudar no registro: ");
   scanf("%d", &num);
@@ -145,18 +141,18 @@ void change_data(char *str, char *backup, int total){
     if(*(backup + i - 1) == ' ') spaces++;
     if(spaces == num){
       for(j = 0; j < i; j++) *(str + j) = *(backup + j);
-        printf("Digite o novo dado: ");
-        scanf("%s", slice);
-        j += strlen(slice);
-        strcat(str, slice);
-        while(*(backup + i) != ' ' && *(backup + i) != '\0') i++;
-        spaces++;
-      }
-      if(spaces > num){
-        *(str + j) = *(backup + i);
-        j++;
-      }
+      printf("Digite o novo dado: ");
+      scanf("%s", slice);
+      j += strlen(slice);
+      strcat(str, slice);
+      while(*(backup + i) != ' ' && *(backup + i) != '\0') i++;
+      spaces++;
+    }
+    if(spaces > num){
+      *(str + j) = *(backup + i);
+      j++;
+    }
   }
   free(slice);
-  //Ja volta da funcao errado!
+  free(backup);
 }
