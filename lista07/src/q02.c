@@ -3,19 +3,22 @@
 #include <string.h>
 
 #define TOTAL 100
+#define QUANTITY 4
 
 int fread_lines(FILE*,char*);
 void print_storage(FILE*,int);
 void add_register(FILE*,int);
 void change_register(FILE*,int);
 void change_data(char*,int);
+void change_lines(FILE*,char**,int);
+void del_register(FILE*, int);
 
 int main(){
 
   FILE *fp;
 
-  if(!(fp = fopen("hardware.dat", "a+"))){
-    puts("Nao foi possivel abrir o arquivo!");
+  if(!(fp = fopen("../dataset/hardware.dat", "a+"))){
+    puts("Não foi possível abrir o arquivo!");
     exit(1);
   }
   
@@ -24,16 +27,16 @@ int main(){
   if(!ch) fprintf(fp, "#num - nome - qtd - custo\n");
 
   int num;
+  void (*Func[QUANTITY])(FILE*, int) = {print_storage, add_register, change_register, del_register};
 
   while(1){
     puts("1 - Imprimir estoque\n2 - Adicionar registros\n3 - Alterar registro\n4 - Deletar registro");
-    printf("Digite uma acao(ou 0 para sair): ");
+    printf("Digite uma ação(ou 0 para sair): ");
     scanf("%d", &num);
     if(!num) break;
     rewind(fp);
-    if(num == 1) print_storage(fp, TOTAL);
-    if(num == 2) add_register(fp, TOTAL);
-    if(num == 3) change_register(fp, TOTAL);
+    if(num > 0 && num <= QUANTITY) Func[num - 1](fp, TOTAL);
+    else puts("Essa ação não existe!");
   }
 
   fclose(fp);
@@ -82,8 +85,8 @@ void add_register(FILE *fp, int total){
       while(1){
         printf("Deseja adicionar mais registros(S ou N): ");
         scanf("%s", str);
-        if(*str == 's') break;
-        else if(*str == 'n'){ 
+        if(*str == 's' || *str == 'S') break;
+        else if(*str == 'n' || *str == 'N'){
           free(str);
           return;
         }
@@ -92,18 +95,17 @@ void add_register(FILE *fp, int total){
     }
   }
   free(str);
-  puts("Nao ha mais espaco para produtos!");
+  puts("Não há mais espaço para produtos!");
 }
 
 void change_register(FILE *fp, int total){
   int num, a;
-  char ch;
-  char *str;
+  char ch, *str;
   if(!(str = (char*) malloc(sizeof(char) * total))) exit(1);
   while(1){
-    printf("Qual registro voce quer alterar: ");
+    printf("Qual registro você quer alterar: ");
     scanf("%d", &num);
-    if(num <= 0 || num > 100) puts("Esse registro nao existe!");
+    if(num <= 0 || num > 100) puts("Esse registro não existe!");
     else break;
   }
   char **matrix = NULL;
@@ -115,15 +117,10 @@ void change_register(FILE *fp, int total){
     strcpy(*(matrix + a), str);
     if(ch) break;
   }
-  freopen(NULL,"w",fp);
-  for(int i = 0; i <= a; i++){
-    fprintf(fp, "%s\n", matrix[i]);
-    free(*(matrix + i));
-  }
-  freopen(NULL, "a+", fp);
+  change_lines(fp, matrix, a);
   free(matrix);
   free(str);
-  if(a < num) puts("Registro nao encontrado!");
+  if(a < num) puts("Registro não encontrado!");
 }
 
 void change_data(char *str, int total){
@@ -134,9 +131,13 @@ void change_data(char *str, int total){
   strcpy(backup, str);
   for(int k = 0; k  < total; k++) *(str + k) = '\0';
   printf("%s\n", backup);
-  puts("1 - nome | 2 - qtd | 3 - custo");
-  printf("O que deseja mudar no registro: ");
-  scanf("%d", &num);
+  while(1){
+    puts("1 - nome | 2 - qtd | 3 - custo");
+    printf("O que deseja mudar no registro: ");
+    scanf("%d", &num);
+    if(num <= 0 || num > 3) puts("Esse dado não existe!");
+    else break;
+  }
   for(int i = 0; *(backup + i) != '\0'; i++){
     if(*(backup + i - 1) == ' ') spaces++;
     if(spaces == num){
@@ -155,4 +156,48 @@ void change_data(char *str, int total){
   }
   free(slice);
   free(backup);
+}
+
+void change_lines(FILE *fp, char **matrix, int size){
+  freopen(NULL,"w",fp);
+  for(int i = 0; i <= size; i++){
+    fprintf(fp, "%s\n", matrix[i]);
+    free(*(matrix + i));
+  }
+  freopen(NULL, "a+", fp);
+}
+
+void del_register(FILE *fp, int total){
+  int num, a, value = 0;
+  char ch, *str, *number;
+  if(!(str = (char*) malloc(sizeof(char) * total))) exit(1);
+  if(!(number = (char*) malloc(sizeof(char) * total))) exit(2);
+  while(1){
+    printf("Qual registro você quer deletar: ");
+    scanf("%d", &num);
+    if(num <= 0 || num > 100) puts("Esse registro não existe!");
+    else break;
+  }
+  char **matrix = NULL;
+  for(a = 0; a <= total; a++){
+    ch = fread_lines(fp, str);
+    if(a >= num){
+      value = 1;
+      sprintf(number,"%d", (a - value));
+      int i;
+      for(i = 0; *(number + i) != '\0'; i++) *(str + i + 1) = *(number + i);
+      if(*(str + (++i)) != ' ') for(i; *(str + i) != '\0'; i++) *(str + i) = *(str + i + 1);
+    }
+    if(a != num){
+      if(!(matrix = (char**) realloc(matrix, sizeof(char*) * a + 1 - value))) exit(3);
+      if(!(*(matrix + (a - value)) = (char*) malloc(sizeof(char) * total))) exit(4);
+      strcpy(*(matrix + (a - value)), str);
+    }
+    if(ch) break;
+  }
+  change_lines(fp, matrix, (a - value));
+  free(matrix);
+  free(str);
+  free(number);
+  if(a < num) puts("Registro não encontrado!");
 }
